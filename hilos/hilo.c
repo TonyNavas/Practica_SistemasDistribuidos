@@ -5,90 +5,70 @@
 #include <unistd.h>
 
 typedef struct {
-	char word[101];
-	int frequency;
+char word[101];
+int frequency;
 } WordArray ;
-
 int compareWords(const void *f1, const void *f2){
-	WordArray *a = (WordArray *)f1;
-	WordArray *b = (WordArray *)f2;
-	return (b->frequency - a->frequency);
+WordArray *a = (WordArray *)f1;
+WordArray *b = (WordArray *)f2;
+return (b->frequency - a->frequency);
 }
-
 void countFrequency(void *arg){
-	
-	char *fileName = (char*)malloc(sizeof(char));
-	fileName = (char*)arg;
-	WordArray *words = (WordArray*)calloc((1000),sizeof(WordArray));
-	char *result = (char*)malloc(sizeof(result)*100);
-	int counter = 0;
-	int isUnique;
-	int i = 0;
-	FILE *file;
-	char buff[1000];
-
-	for (i = 0; i < sizeof(WordArray); i++){
-		words[i].word[0] = '\0';
-		words[i].frequency = 0;
-	}
-
-	file = fopen(fileName, "r");
-	if (file == NULL){
-		printf("Couldn't open file: ");
-	}
-			
-	else {
-		while ( (fscanf(file, "%s", buff)) != EOF)
-		{
-			isUnique = -1;
-
-			int k;
-			for (k = 0; k < counter; k++){
-				if (strcmp(words[k].word, buff) == 0){
-					isUnique = k;
-				}
-			}
-
-			if (isUnique == -1){
-				strcpy(words[counter].word, buff);
-				words[counter].frequency = 1;
-				counter++;
-			}
-
-			else {
-				words[isUnique].frequency++;
-			}
-
-			words = realloc(words, (sizeof(*words) + counter) * sizeof(WordArray));	
-		}
-	}
-
-	qsort(words, counter, sizeof(WordArray), compareWords);
-
-	snprintf(result, 10000, "%s %d %s %s %s", fileName, counter, words[0].word, words[1].word, words[2].word);
-	fclose(file);
-	printf("%s\n", result);
-
+char *fileName = (char*)malloc(sizeof(char));
+fileName = (char*)arg;
+WordArray *words = (WordArray*)calloc((1000),sizeof(WordArray));
+char *result = (char*)malloc(sizeof(result)*100);
+int counter = 0;
+int isUnique;
+int i = 0;
+FILE *file;
+char buff[1000];
+for (i = 0; i < sizeof(WordArray); i++){
+words[i].word[0] = '\0';
+words[i].frequency = 0;
 }
-
+file = fopen(fileName, "r");
+if (file == NULL){
+printf("Couldn't open file: ");
+}
+else {
+while ( (fscanf(file, "%s", buff)) != EOF)
+{
+isUnique = -1;
+int k;
+for (k = 0; k < counter; k++){
+if (strcmp(words[k].word, buff) == 0){
+isUnique = k;
+}
+}
+if (isUnique == -1){
+strcpy(words[counter].word, buff);
+words[counter].frequency = 1;
+counter++;
+}
+else {
+words[isUnique].frequency++;
+}
+words = realloc(words, (sizeof(*words) + counter) * sizeof(WordArray));	
+}
+}
+qsort(words, counter, sizeof(WordArray), compareWords);
+snprintf(result, 10000, "%s %d %s %s %s", fileName, counter, words[0].word, words[1].word, words[2].word);
+fclose(file);
+printf("%s\n", result);
+}
 int main(int argc, char *argv[]){
-
-	pthread_t threads[argc-1];
-	pthread_attr_t attr;
-	pthread_attr_init(&attr);
-
-
-	int i;
-	for (i = 1; i < argc; i++){
-		char* arguments = (char*)malloc(sizeof(argv[i])+1);
-		arguments = argv[i];
-
-		pthread_create(&threads[i], &attr, (void*) countFrequency, (void*) arguments);
-	}
-	for (i = 1; i < argc; i++){
-
-		pthread_join(threads[i], NULL);
-	}
-
-	return 0;
+pthread_t threads[argc-1];
+pthread_attr_t attr;
+pthread_attr_init(&attr);
+int i;
+for (i = 1; i < argc; i++){
+char* arguments = (char*)malloc(sizeof(argv[i])+1);
+arguments = argv[i];
+pthread_create(&threads[i], &attr, (void*) countFrequency, (void*) arguments);
+}
+for (i = 1; i < argc; i++){
+pthread_join(threads[i], NULL);
+}
+return 0;
 }
